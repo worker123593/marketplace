@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Товары</h1>
+    {% if products %}
+    
+    {% for items in products %}
+        <div class="row border">
+        {% for item in items %}
+            <a href="/product/{{item.id}}" class="col border offset-md-*">
+                <img class="text-sm-center" src="..\static\img\{{ item.id }}_1.png" alt="{{item.title}}" class="rounded-top" width="30%" height="30%">
+                <p class="text-sm-center">{{item.title}}</p>
+                <p>{{item.price}} руб.</p>
+                <p>{{item.content}}</p>     
+            </a>
+        {% endfor %}
+        </div>
+    {% endfor %}
+        {% else %}
+        <h1>Тут ничего нет</h1>
+    {% endif %}
+{% endblock %}

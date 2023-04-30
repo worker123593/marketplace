@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{product.title}}</h2>
+{% if current_user.is_authenticated %}
+    <p>
+        <a class="btn btn-secondary" href="products" class="/edit_product/{{product.id}}">Редактировать</a>
+        <a class="btn btn-secondary" href="/removing_product/{{product.id}}">Снять с публикации</a>
+    </p>
+{% endif %}
+<img src="..\static\img\{{ product.id }}_1.png" alt="{{product.title}}" width="50%">
+<div>
+    {{product.content}}
+</div>
+<div>
+    {{product.date_change}}
+</div>
+<div>
+    {{product.price}}
+</div>
+<div>
+    Автор - {{product.user.name}}, Дата написания - {{product.created_date}}
+</div>  
+
+
+{% endblock %}

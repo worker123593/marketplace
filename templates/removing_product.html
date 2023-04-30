@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1>Объявление неактуально</h1>
+
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="form-check" >
+            {{ form.reason.label }}<br>
+            {{ form.reason(type="reason") }}<br>
+            {% for error in form.reason.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+            </div>
+        <p>{{ form.remove(type="remove", class="btn btn-warning") }} {{ form.leave(type="leave", class="btn btn-info") }}</p>
+        {{message}}
+    </form>
+
+{% endblock %}
