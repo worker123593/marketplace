@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Добавление новости</h1>
+<h1>title</h1>
 <form action="" method="post" enctype="multipart/form-data">
+    
     {{ form.hidden_tag() }}
     <p>
         {{ form.title.label }}<br>
@@ -22,6 +23,7 @@
             </p>
         {% endfor %}
     </p>
+    <img src="..\static\img\{{ name }}_1.png" width="50%">
     <p>
         <input type="file" class="form-control-file" id="photo" name="file">
     </p>

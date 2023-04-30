@@ -108,16 +108,20 @@ def edit_product(id_num):
             form.title.data = products.title
             form.content.data = products.content
             form.price.data = products.price
+
         if request.method == 'POST':
             products.title = form.title.data
             products.content = form.content.data
             products.price = form.price.data
             products.date_change = datetime.datetime.now()
             db_sess.commit()
+            p = request.files['file'].read()
+            with open(f'static/img/{products.id}_1.png', 'wb') as img:
+                img.write(p)
             return redirect(f'/product/{products.id}')
     else:
         abort(404)
-    return render_template('products.html', title='Редактирование объявления', form=form)
+    return render_template('products.html', title='Редактирование объявления', form=form, name=products.id)
 
 
 @app.route('/removing_product/<int:id_num>', methods=['GET', 'POST'])
@@ -140,20 +144,20 @@ def removing_product(id_num):
 @login_required
 def add_products():
     form = ProductsForm()
+    products = Products()
+    db_sess = db_session.create_session()
+    users_products = db_sess.query(Products).all()
+    if not users_products or len(users_products) == users_products[-1].id:
+        filename = str(len(users_products) + 1)
+    else:
+        data = enumerate(users_products, 1)
+        a = list(filter(lambda x: x[0] != x[1].id, data))[0][0]
+        products.id = a
+        filename = str(a)
     if request.method == 'POST':
-        db_sess = db_session.create_session()
-        products = Products()
         products.title = form.title.data
         products.content = form.content.data
         products.price = form.price.data
-        users_products = db_sess.query(Products).all()
-        if not users_products or len(users_products) == users_products[-1].id:
-            filename = str(len(users_products) + 1)
-        else:
-            data = enumerate(users_products, 1)
-            a = list(filter(lambda x: x[0] != x[1].id, data))[0][0]
-            products.id = a
-            filename = str(a)
         p = request.files['file'].read()
         with open(f'static/img/{filename}_1.png', 'wb') as img:
             img.write(p)
@@ -161,7 +165,7 @@ def add_products():
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
-    return render_template('products.html', title='Новое объявление', form=form)
+    return render_template('products.html', title='Новое объявление', form=form, name=filename)
 
 
 @app.route('/purchase/<int:id_num>', methods=['GET', 'POST'])
