@@ -1,17 +1,19 @@
-import shutil
-
-from flask import Flask, render_template, redirect, request, session, abort, jsonify, url_for
+import datetime
+import os
+from flask import Flask, render_template, redirect, request, abort, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api
 from data import db_session, products_api
 from data.products import Products
 from data.users import User
 from forms.products import ProductsForm
+from forms.purchase import PurchaseForm
 from forms.removal import RemovalProductForm
 from forms.user import RegisterForm, LoginForm
 from products_resource import ProductsListResource, ProductsResource
 from users_resource import UserResource, UserListResource
 from flask import make_response
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -36,7 +38,7 @@ def lobby():
         else:
             products.append(answ[0:])
             break
-    return render_template("index.html", products=products)
+    return render_template("index.html", products=products, title='Интернет-магазин')
 
 
 @login_manager.user_loader
@@ -63,7 +65,7 @@ def login():
 def viewing_product(id_num):
     db_sess = db_session.create_session()
     product = db_sess.query(Products).get(id_num)
-    return render_template('viewing_product.html', product=product)
+    return render_template('viewing_product.html', product=product, title=product.title)
 
 
 @app.route('/logout')
@@ -71,22 +73,6 @@ def viewing_product(id_num):
 def logout():
     logout_user()
     return redirect("/")
-
-
-@app.route("/cookie_test")
-def cookie_test():
-    visits_count = int(request.cookies.get("visits_count", 0))
-    if visits_count:
-        res = make_response(
-            f"Вы пришли на эту страницу {visits_count + 1} раз")
-        res.set_cookie("visits_count", str(visits_count + 1),
-                       max_age=60 * 60 * 24 * 365 * 2)
-    else:
-        res = make_response(
-            "Вы пришли на эту страницу в первый раз за последние 2 года")
-        res.set_cookie("visits_count", '1',
-                       max_age=60 * 60 * 24 * 365 * 2)
-    return res
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -115,26 +101,23 @@ def reqister():
 @login_required
 def edit_product(id_num):
     form = ProductsForm()
-    if request.method == "GET":
-        db_sess = db_session.create_session()
-        products = db_sess.query(Products).filter(Products.id == id_num, Products.user == current_user).first()
-        if products:
+    db_sess = db_session.create_session()
+    products = db_sess.query(Products).filter(Products.id == id_num, Products.user == current_user).first()
+    if products:
+        if request.method == "GET":
             form.title.data = products.title
             form.content.data = products.content
-            form.is_private.data = products.is_private
-        else:
-            abort(404)
-    if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        products = db_sess.query(Products).filter(Products.id == id_num, Products.user == current_user).first()
-        if products:
+            form.price.data = products.price
+        if request.method == 'POST':
             products.title = form.title.data
             products.content = form.content.data
+            products.price = form.price.data
+            products.date_change = datetime.datetime.now()
             db_sess.commit()
-            return redirect('/')
-        else:
-            abort(404)
-    return render_template('products.html', title='Редактирование новости', form=form)
+            return redirect(f'/product/{products.id}')
+    else:
+        abort(404)
+    return render_template('products.html', title='Редактирование объявления', form=form)
 
 
 @app.route('/removing_product/<int:id_num>', methods=['GET', 'POST'])
@@ -142,17 +125,15 @@ def edit_product(id_num):
 def removing_product(id_num):
     form = RemovalProductForm()
     db_sess = db_session.create_session()
-    products = db_sess.query(Products).filter(Products.id == id_num, Products.user == current_user).first()
-    if not products:
+    product = db_sess.query(Products).filter(Products.id == id_num, Products.user == current_user).first()
+    if not product:
         abort(404)
     if form.validate_on_submit():
-        if form.remove.data:
-            db_sess.delete(products)
-            db_sess.commit()
-            shutil.rmtree(f'static/img/{products.id}_1.png')
-        if form.leave.data:
-            redirect(f'/product/{id_num}')
-    return render_template('removing_product.html', form=form)
+        db_sess.delete(product)
+        db_sess.commit()
+        os.remove(f'static/img/{product.id}_1.png')
+        return redirect('/')
+    return render_template('removing_product.html', form=form, product=product, title='Снятие объявления')
 
 
 @app.route('/products', methods=['GET', 'POST'])
@@ -166,7 +147,7 @@ def add_products():
         products.content = form.content.data
         products.price = form.price.data
         users_products = db_sess.query(Products).all()
-        if len(users_products) == users_products[-1].id:
+        if not users_products or len(users_products) == users_products[-1].id:
             filename = str(len(users_products) + 1)
         else:
             data = enumerate(users_products, 1)
@@ -180,7 +161,17 @@ def add_products():
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
-    return render_template('products.html', title='Добавление новости', form=form)
+    return render_template('products.html', title='Новое объявление', form=form)
+
+
+@app.route('/purchase/<int:id_num>', methods=['GET', 'POST'])
+def purchase(id_num):
+    form = PurchaseForm()
+    db_sess = db_session.create_session()
+    product = db_sess.query(Products).get(id_num)
+    if form.validate_on_submit():
+        return redirect('/')
+    return render_template('purchase.html', title='Оформление заказа', form=form, product=product)
 
 
 @app.errorhandler(404)

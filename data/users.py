@@ -16,11 +16,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     email = Column(String, index=True, unique=True, nullable=True)
     hashed_password = Column(String, nullable=True)
     created_date = Column(DateTime, default=datetime.datetime.now)
-
     products = orm.relationship("Products", back_populates='user')
-
-    def __repr__(self):
-        return f'<User> {self.id} {self.name} {self.email}'
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

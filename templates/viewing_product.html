@@ -3,9 +3,9 @@
 {% block content %}
 
 <h2>{{product.title}}</h2>
-{% if current_user.is_authenticated %}
+{% if current_user.is_authenticated and current_user == product.user %}
     <p>
-        <a class="btn btn-secondary" href="products" class="/edit_product/{{product.id}}">Редактировать</a>
+        <a class="btn btn-secondary" href="/edit_product/{{product.id}}">Редактировать</a>
         <a class="btn btn-secondary" href="/removing_product/{{product.id}}">Снять с публикации</a>
     </p>
 {% endif %}
@@ -13,15 +13,27 @@
 <div>
     {{product.content}}
 </div>
+{% if current_user == product.user %}
+    <div>
+        Цена - {{product.price}} рублей
+    </div>
+{% endif %}
 <div>
-    {{product.date_change}}
+    Автор - {{product.user.name}}
+</div> 
+<div>
+     Дата написания - {{product.created_date}}
+</div> 
+<div>
+    Дата изменения - {{product.date_change}}
 </div>
-<div>
-    {{product.price}}
-</div>
-<div>
-    Автор - {{product.user.name}}, Дата написания - {{product.created_date}}
-</div>  
-
+{% if current_user != product.user %}
+    <div>
+        Цена: {{product.price}}
+    </div>
+    <p>
+        <a class="btn btn-warning" href="/purchase/{{product.id}}">Купить</a>
+    </p>
+{% endif %}
 
 {% endblock %}

@@ -12,17 +12,19 @@
 </head>
 <body>
 <header class="bg-dark">
-    <nav class="navbar navbar-light bg-light sticky-sm-top">
+    <nav class="navbar navbar-light bg-dark sticky-sm-top">
+        <h3><a class="navbar navbar-light" href="/">Наше приложение</a></h3>
         {% if current_user.is_authenticated %}
-        <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
-        <a href="products" class="btn btn-secondary">Добавить объявление</a>
+            {% if title == 'Интернет-магазин' %}
+                <a href="/products" class="btn btn-primary">Добавить объявление</a>
+            {% endif %}
+            <a class="btn btn-light" href="/logout">{{ current_user.name }}</a>
         {% else %}
-        <p>
-            <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
-            <a class="btn btn-success" href="/login">Войти</a>
-        </p>
+            <p>
+                <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
+                <a class="btn btn-success" href="/login">Войти</a>
+            </p>
         {% endif %}
-        <a class="navbar-brand" href="/">Наше приложение</a>
     </nav>
 </header>
 <!-- Begin page content -->
@@ -32,20 +34,5 @@
         {% endblock %}
     </div>
 </main>
-<footer class="bg-dark sticky-bottom">
-    <div class="row">
-        <a href="/additem" class="col">Разместить объявление</a>
-        <a href="/rossiya" class="col">Объявления</a>
-        <a href="https://support.avito.ru" target="_blank" rel="noopener noreferrer" class="col">Помощь</a>
-        <a href="/safety" class="col">Безопасность</a>
-        <a  href="/advertising" rel="nofollow" class="col">Реклама на сайте</a></li>
-        <a  href="/company" class="col">О компании</a>
-        <a href="/company/job" class="col">Карьера</a>
-        <a  href="/journal/articles" class="col">Авито Журнал</a>
-        <a href="/blog" class="col">Блог</a>
-        <a  href="/avito-care?from=footer" class="col">Авито Польза</a>
-        <a href="/info/apps" class="col"><strong>Мобильное приложение</strong></a>
-    </div>
-</footer>
 </body>
 </html>

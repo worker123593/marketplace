@@ -7,11 +7,11 @@
     {% for items in products %}
         <div class="row border">
         {% for item in items %}
-            <a href="/product/{{item.id}}" class="col border offset-md-*">
-                <img class="text-sm-center" src="..\static\img\{{ item.id }}_1.png" alt="{{item.title}}" class="rounded-top" width="30%" height="30%">
-                <p class="text-sm-center">{{item.title}}</p>
-                <p>{{item.price}} руб.</p>
-                <p>{{item.content}}</p>     
+            <a href="/product/{{item.id}}" class="col col-sm-2 border offset-md-* text-sm-center">
+                <img src="..\static\img\{{ item.id }}_1.png" alt="{{item.title}}" class="rounded-top" width="30%" height="30%">
+                <p>{{item.title}}</p>
+                <p class="text-sm-left">{{item.price}} руб.</p>
+                <p class="text-sm-left">{{item.content[:20]}}{% if item.content[:20] != item.content %}...{% endif %} </p>     
             </a>
         {% endfor %}
         </div>

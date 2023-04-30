@@ -3,8 +3,8 @@
 {% block content %}
 
     <h1>Объявление неактуально</h1>
-
-    <form method="post">
+    <a href="/product/{{ product.id }}" class="btn btn-secondary">Вернуться назад</a>
+    <form action="" method="post">
         {{ form.hidden_tag() }}
         <div class="form-check" >
             {{ form.reason.label }}<br>
@@ -15,7 +15,7 @@
                 </p>
             {% endfor %}
             </div>
-        <p>{{ form.remove(type="remove", class="btn btn-warning") }} {{ form.leave(type="leave", class="btn btn-info") }}</p>
+            <p>{{ form.remove(type="submit", class="btn btn-warning") }} <a href="/product/{{ product.id }}" class="btn btn-secondary">Вернуться назад</a></p>
         {{message}}
     </form>
 
